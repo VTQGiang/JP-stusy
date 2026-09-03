@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiểm tra — NihonGo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div class="bg-mesh"><div class="orb3"></div></div>
+  <div id="navbar-placeholder"></div>
+
+  <main class="page">
+    <div class="container-sm" style="padding-top:var(--sp-8);">
+
+      <div class="flex items-center justify-between" style="margin-bottom:var(--sp-8);">
+        <h2 id="set-title">📝 Kiểm tra</h2>
+        <button class="btn btn-ghost btn-sm" onclick="configTest()">⚙️ Cài đặt</button>
+      </div>
+
+      <!-- CONFIG SCREEN -->
+      <div id="test-config" style="display:none;">
+        <div class="card-glass" style="padding:var(--sp-8);">
+          <h3 style="margin-bottom:var(--sp-6);">⚙️ Cài đặt bài kiểm tra</h3>
+
+          <div class="flex-col gap-5">
+            <div class="form-group">
+              <label class="form-label">Số câu hỏi (tối đa <span id="config-max">64</span>)</label>
+              <input type="number" id="config-count" class="form-input" value="10" min="5" max="64">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Hướng câu hỏi</label>
+              <select id="config-dir" class="form-select">
+                <option value="mixed">Hỗn hợp (đề xuất)</option>
+                <option value="jp2vn">Nhật → Việt</option>
+                <option value="vn2jp">Việt → Nhật</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-4 flex-wrap">
+              <label class="flex items-center gap-3" style="cursor:pointer;">
+                <input type="checkbox" id="config-timer" style="width:18px;height:18px;accent-color:var(--clr-primary);">
+                <span class="form-label" style="margin:0;">Giới hạn thời gian</span>
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="number" id="config-time" class="form-input" value="120" min="30" max="600" style="width:90px;">
+                <span style="color:var(--text-muted);font-size:.85rem;">giây</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:var(--sp-8);">
+            <button class="btn btn-primary btn-lg" style="width:100%;" onclick="startTest()">🚀 Bắt đầu kiểm tra</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEST SESSION -->
+      <div id="test-session" style="display:none;">
+        <div class="session-header">
+          <div class="session-progress-wrap progress-wrap">
+            <div class="progress-bar" style="width:0%;"></div>
+          </div>
+          <div class="session-stats">
+            <div class="text-center">
+              <div class="session-stat-val"><span id="cur-q">1</span>/<span id="total-q">10</span></div>
+              <div class="session-stat-lbl">Câu hỏi</div>
+            </div>
+          </div>
+          <div id="timer-wrap" style="display:none;" class="flex items-center gap-2">
+            <div class="test-timer" id="timer-display" style="font-size:1.1rem;font-weight:700;">2:00</div>
+          </div>
+        </div>
+
+        <div id="q-area"></div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="test-results" style="display:none;">
+        <div class="results-card anim-bounceIn">
+          <div style="font-size:3rem;margin-bottom:var(--sp-4);">🎯</div>
+          <div class="results-score" id="res-score">0/10</div>
+          <div class="results-grade" id="res-grade">Tốt lắm!</div>
+          <div style="font-size:1.5rem;color:var(--text-secondary);margin-bottom:var(--sp-8);">Độ chính xác: <strong id="res-accuracy" style="color:var(--clr-primary-light);">0%</strong></div>
+
+          <div class="flex gap-4 justify-center flex-wrap" style="margin-bottom:var(--sp-8);">
+            <button class="btn btn-primary btn-lg" onclick="retakeTest()">🔄 Làm lại</button>
+            <button class="btn btn-secondary btn-lg" onclick="configTest()">⚙️ Đổi cài đặt</button>
+            <a class="btn btn-outline btn-lg" id="back-to-set-2">← Quay lại</a>
+          </div>
+
+          <hr class="divider">
+          <h3 style="text-align:left;margin-bottom:var(--sp-4);">Chi tiết câu trả lời</h3>
+          <div id="result-detail" class="word-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/sm2.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/test.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sid = getSetIdFromURL();
+      if (sid) {
+        const el = document.getElementById('back-to-set-2');
+        if (el) el.href = `study-set.html?set=${sid}`;
+      }
+    });
+
+    // Update progress bar during test
+    const origRender = typeof renderTestQuestion !== 'undefined' ? renderTestQuestion : null;
+  </script>
+</body>
+</html>

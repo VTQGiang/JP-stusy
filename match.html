@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghép thẻ — NihonGo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div class="bg-mesh"><div class="orb3"></div></div>
+  <div id="navbar-placeholder"></div>
+
+  <main class="page">
+    <div class="container-md" style="padding-top:var(--sp-8);">
+
+      <!-- HEADER -->
+      <div class="flex items-center justify-between" style="margin-bottom:var(--sp-6);flex-wrap:wrap;gap:var(--sp-4);">
+        <div>
+          <h2 id="set-title">🔗 Ghép thẻ</h2>
+          <div style="font-size:.85rem;color:var(--text-muted);margin-top:4px;">Ghép từ tiếng Nhật với nghĩa tiếng Việt đúng</div>
+        </div>
+        <div class="flex gap-3 items-center">
+          <div class="flex items-center gap-2">
+            <span style="font-size:.85rem;color:var(--text-muted);">Số cặp:</span>
+            <select class="form-select" style="width:auto;" onchange="changeCount(this.value)">
+              <option value="4">4 cặp</option>
+              <option value="6" selected>6 cặp</option>
+              <option value="8">8 cặp</option>
+              <option value="10">10 cặp</option>
+            </select>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="playAgain()">↺ Làm lại</button>
+        </div>
+      </div>
+
+      <!-- MATCH BOARD -->
+      <div id="match-board">
+        <!-- STATS BAR -->
+        <div class="flex items-center gap-4 flex-wrap" style="margin-bottom:var(--sp-5);padding:var(--sp-3) var(--sp-4);background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--r-md);">
+          <div class="flex items-center gap-2">
+            <span style="font-size:1.2rem;">⏱️</span>
+            <div>
+              <div style="font-size:1.15rem;font-weight:800;" id="match-timer">0:00</div>
+              <div style="font-size:.7rem;color:var(--text-muted);">Thời gian</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span style="font-size:1.2rem;">✅</span>
+            <div>
+              <div style="font-size:1.15rem;font-weight:800;" id="match-found">0</div>
+              <div style="font-size:.7rem;color:var(--text-muted);">Đã ghép</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2" style="margin-left:auto;">
+            <span style="font-size:.8rem;color:var(--text-muted);" id="match-count">6 cặp</span>
+          </div>
+        </div>
+
+        <!-- HINT -->
+        <div style="text-align:center;font-size:.82rem;color:var(--text-muted);margin-bottom:var(--sp-4);">
+          💡 Click vào 1 từ tiếng Nhật, sau đó click vào nghĩa tương ứng
+        </div>
+
+        <!-- GRID -->
+        <div class="match-grid" id="match-grid">
+          <!-- Tiles rendered by JS -->
+        </div>
+      </div>
+
+      <!-- COMPLETE SCREEN -->
+      <div id="match-complete" style="display:none;" class="complete-screen">
+        <div class="complete-icon">🏆</div>
+        <h2 class="complete-title">Ghép thành công!</h2>
+        <p>Bạn đã ghép đúng tất cả các cặp từ!</p>
+
+        <div class="complete-stats">
+          <div class="complete-stat">
+            <div class="complete-stat-value" id="comp-time" style="background:var(--grad-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">0:00</div>
+            <div class="complete-stat-label">⏱️ Thời gian</div>
+          </div>
+          <div class="complete-stat">
+            <div class="complete-stat-value" id="comp-mistakes" style="color:var(--clr-danger);">0</div>
+            <div class="complete-stat-label">✗ Lần sai</div>
+          </div>
+        </div>
+
+        <div style="font-size:.9rem;color:var(--clr-warning);font-weight:600;margin:var(--sp-2) 0 var(--sp-8);" id="comp-best"></div>
+
+        <div class="flex gap-4 justify-center flex-wrap">
+          <button class="btn btn-primary btn-lg" onclick="playAgain()">🔄 Chơi lại</button>
+          <button class="btn btn-secondary btn-lg" onclick="changeCount(10)">⬆️ Tăng độ khó</button>
+          <a class="btn btn-outline btn-lg" id="back-link-match">← Quay lại</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/sm2.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/match.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sid = getSetIdFromURL();
+      if (sid) {
+        const el = document.getElementById('back-link-match');
+        if (el) el.href = `study-set.html?set=${sid}`;
+      }
+    });
+  </script>
+</body>
+</html>

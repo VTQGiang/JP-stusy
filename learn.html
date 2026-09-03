@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Học thông minh — NihonGo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div class="bg-mesh"><div class="orb3"></div></div>
+  <div id="navbar-placeholder"></div>
+
+  <main class="page">
+    <div class="container-sm" style="padding-top:var(--sp-8);">
+
+      <!-- SET TITLE -->
+      <div class="flex items-center justify-between" style="margin-bottom:var(--sp-6);">
+        <h2 id="set-title">🧠 Học thông minh</h2>
+        <div class="flex gap-2 items-center">
+          <span style="font-size:.8rem;color:var(--clr-primary-light);background:var(--clr-primary-glow);padding:4px 12px;border-radius:var(--r-full);border:1px solid rgba(124,111,255,.3);">SM-2</span>
+          <button class="btn btn-ghost btn-sm" onclick="restartLearn()">↺ Làm lại</button>
+        </div>
+      </div>
+
+      <!-- SESSION HEADER -->
+      <div class="session-header">
+        <div class="session-progress-wrap progress-wrap">
+          <div class="progress-bar" style="width:0%;"></div>
+        </div>
+        <div class="session-stats">
+          <div class="text-center">
+            <div class="session-stat-val correct" id="s-correct">0</div>
+            <div class="session-stat-lbl">✓ Đúng</div>
+          </div>
+          <div class="text-center">
+            <div class="session-stat-val wrong" id="s-incorrect">0</div>
+            <div class="session-stat-lbl">✗ Sai</div>
+          </div>
+          <div class="text-center" style="min-width:60px;">
+            <div class="session-stat-val"><span id="s-current">1</span><span style="color:var(--text-muted);font-weight:400;">/</span><span id="s-total">20</span></div>
+            <div class="session-stat-lbl">Câu</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUESTION AREA -->
+      <div id="question-area"></div>
+
+      <!-- COMPLETE SCREEN -->
+      <div id="learn-complete" style="display:none;" class="complete-screen">
+        <div class="complete-icon">🌟</div>
+        <h2 class="complete-title">Phiên học hoàn tất!</h2>
+        <p>Hệ thống SM-2 đã cập nhật lịch ôn tập cho bạn.</p>
+
+        <div class="complete-stats">
+          <div class="complete-stat">
+            <div class="complete-stat-value" id="comp-correct" style="color:var(--clr-success);">0</div>
+            <div class="complete-stat-label">Câu đúng</div>
+          </div>
+          <div class="complete-stat">
+            <div class="complete-stat-value" id="comp-incorrect" style="color:var(--clr-danger);">0</div>
+            <div class="complete-stat-label">Câu sai</div>
+          </div>
+          <div class="complete-stat">
+            <div class="complete-stat-value" id="comp-accuracy" style="background:var(--grad-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">-</div>
+            <div class="complete-stat-label">Độ chính xác</div>
+          </div>
+        </div>
+
+        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-6);margin:var(--sp-6) 0;text-align:left;">
+          <div style="font-size:.85rem;color:var(--clr-primary-light);font-weight:600;margin-bottom:var(--sp-2);">💡 SM-2 đã cập nhật:</div>
+          <div style="font-size:.85rem;color:var(--text-secondary);">Các từ bạn trả lời đúng sẽ được lên lịch ôn sau 1–6 ngày. Từ sai sẽ xuất hiện lại trong phiên tiếp theo.</div>
+        </div>
+
+        <div class="flex gap-4 justify-center flex-wrap">
+          <button class="btn btn-primary btn-lg" onclick="restartLearn()">🔄 Học tiếp</button>
+          <a class="btn btn-secondary btn-lg" id="back-link">← Quay lại</a>
+          <a class="btn btn-outline btn-lg" id="test-link">📝 Làm bài kiểm tra</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/sm2.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/learn.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sid = getSetIdFromURL();
+      if (sid) {
+        document.getElementById('back-link').href = `study-set.html?set=${sid}`;
+        document.getElementById('test-link').href = `test.html?set=${sid}`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tạo bộ thẻ — NihonGo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div class="bg-mesh"><div class="orb3"></div></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">
+        <div class="brand-logo">🌸</div>
+        <span class="brand-name">NihonGo</span>
+      </a>
+      <ul class="navbar-nav hide-mobile">
+        <li><a href="index.html">🏠 Trang chủ</a></li>
+        <li><a href="create.html" class="active">➕ Tạo bộ thẻ</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <button class="btn btn-secondary btn-sm" onclick="window.history.back()">← Hủy</button>
+        <button class="btn btn-primary btn-sm" onclick="saveSet()">💾 Lưu</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="container-md" style="padding-top:var(--sp-8);padding-bottom:var(--sp-16);">
+
+      <div class="flex items-center justify-between gap-3 flex-wrap" style="margin-bottom:var(--sp-6);">
+        <h1 id="page-title" style="font-size:clamp(1.5rem, 3.5vw, 2.5rem);">➕ Tạo bộ thẻ mới</h1>
+        <div class="flex gap-2">
+          <button class="btn btn-outline btn-sm" onclick="importCSV()" title="Nhập từ CSV">📥 Import CSV</button>
+          <input type="file" id="csv-input" accept=".csv,.txt" style="display:none;" onchange="handleCSV(event)">
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:var(--sp-8);">
+        <!-- SET INFO -->
+        <div class="flex-col gap-5">
+          <div class="form-group">
+            <label class="form-label">Tên bộ thẻ *</label>
+            <input type="text" id="set-name" class="form-input" placeholder="VD: Tiếng Nhật N5 — Bài 1" maxlength="80">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mô tả</label>
+            <input type="text" id="set-desc" class="form-input" placeholder="Mô tả ngắn về bộ thẻ..." maxlength="200">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cấp độ</label>
+            <select id="set-level" class="form-select">
+              <option value="N5">N5 — Sơ cấp</option>
+              <option value="N4">N4 — Cơ bản</option>
+              <option value="N3">N3 — Trung cấp</option>
+              <option value="N2">N2 — Khá</option>
+              <option value="N1">N1 — Nâng cao</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Màu sắc</label>
+            <div class="flex gap-3">
+              <button class="color-swatch active" data-color="#7C6FFF" onclick="selectColor(this)" style="width:36px;height:36px;border-radius:50%;background:#7C6FFF;border:3px solid white;cursor:pointer;"></button>
+              <button class="color-swatch" data-color="#FF6B9D" onclick="selectColor(this)" style="width:36px;height:36px;border-radius:50%;background:#FF6B9D;border:3px solid transparent;cursor:pointer;"></button>
+              <button class="color-swatch" data-color="#2ECC9A" onclick="selectColor(this)" style="width:36px;height:36px;border-radius:50%;background:#2ECC9A;border:3px solid transparent;cursor:pointer;"></button>
+              <button class="color-swatch" data-color="#38B2FF" onclick="selectColor(this)" style="width:36px;height:36px;border-radius:50%;background:#38B2FF;border:3px solid transparent;cursor:pointer;"></button>
+              <button class="color-swatch" data-color="#FFB347" onclick="selectColor(this)" style="width:36px;height:36px;border-radius:50%;background:#FFB347;border:3px solid transparent;cursor:pointer;"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IMPORT HINT -->
+        <div class="card-glass" style="padding:var(--sp-6);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:var(--sp-4);">
+          <div style="font-size:3rem;">📥</div>
+          <h3>Import từ CSV</h3>
+          <p style="font-size:.85rem;">Upload file .csv với định dạng:<br><code style="background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px;font-size:.8rem;">Từ JP,Nghĩa VN,Hiragana,Romaji</code></p>
+          <button class="btn btn-outline btn-sm" onclick="importCSV()">Chọn file</button>
+          <p style="font-size:.75rem;color:var(--text-muted);">Hoặc thêm thủ công bên dưới</p>
+        </div>
+      </div>
+
+      <!-- CARD LIST -->
+      <div class="flex items-center justify-between" style="margin-bottom:var(--sp-4);">
+        <h3>Danh sách thẻ (<span id="card-count">0</span> thẻ)</h3>
+        <button class="btn btn-primary btn-sm" onclick="addCard()">+ Thêm thẻ</button>
+      </div>
+
+      <div id="card-list" class="flex-col gap-3">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div style="text-align:center;margin-top:var(--sp-6);">
+        <button class="btn btn-secondary" onclick="addCard()">+ Thêm thẻ</button>
+      </div>
+
+      <hr class="divider" style="margin:var(--sp-10) 0;">
+
+      <div class="flex gap-4 justify-end">
+        <button class="btn btn-ghost" onclick="window.history.back()">Hủy</button>
+        <button class="btn btn-primary btn-lg" onclick="saveSet()">💾 Lưu bộ thẻ</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/sm2.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let editingSetId  = null;
+    let selectedColor = '#7C6FFF';
+    let cardRows      = [];  // [{id, front, back, hiragana, romaji, example, exampleMeaning, category}]
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const setId = getSetIdFromURL();
+      if (setId) {
+        editingSetId = setId;
+        const set = DB.getSet(setId);
+        if (set) loadSetForEdit(set);
+      } else {
+        // New set: start with 3 empty cards
+        addCard(); addCard(); addCard();
+      }
+    });
+
+    function loadSetForEdit(set) {
+      document.getElementById('page-title').textContent = '✏️ Chỉnh sửa bộ thẻ';
+      document.getElementById('set-name').value  = set.name;
+      document.getElementById('set-desc').value  = set.description || '';
+      document.getElementById('set-level').value = set.level;
+      selectColorByValue(set.color);
+      cardRows = set.cards.map(c => ({ ...c }));
+      renderCardList();
+    }
+
+    /* ---------- COLOR PICKER ---------- */
+    function selectColor(btn) {
+      document.querySelectorAll('.color-swatch').forEach(b => b.style.borderColor = 'transparent');
+      btn.style.borderColor = 'white';
+      selectedColor = btn.dataset.color;
+    }
+    function selectColorByValue(color) {
+      document.querySelectorAll('.color-swatch').forEach(b => {
+        b.style.borderColor = b.dataset.color === color ? 'white' : 'transparent';
+      });
+      selectedColor = color;
+    }
+
+    /* ---------- CARD ROWS ---------- */
+    function addCard() {
+      cardRows.push({ id: Date.now(), front:'', back:'', hiragana:'', romaji:'', example:'', exampleMeaning:'', category:'' });
+      renderCardList();
+      // Focus last front input
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('.card-row-front');
+        if (inputs.length) inputs[inputs.length-1].focus();
+      }, 50);
+    }
+
+    function removeCard(id) {
+      cardRows = cardRows.filter(c => c.id !== id);
+      renderCardList();
+    }
+
+    function renderCardList() {
+      document.getElementById('card-count').textContent = cardRows.length;
+      document.getElementById('card-list').innerHTML = cardRows.map((c, i) => `
+        <div class="card-row" id="row-${c.id}">
+          <div class="flex-col gap-2">
+            <span class="card-row-num">#${i+1}</span>
+            <input type="text" class="form-input card-row-front japanese" placeholder="Từ tiếng Nhật (Kanji/Kana)" value="${esc(c.front)}"
+              oninput="updateCard(${c.id},'front',this.value)">
+            <input type="text" class="form-input" placeholder="Hiragana (nếu có)" value="${esc(c.hiragana)}"
+              oninput="updateCard(${c.id},'hiragana',this.value)" style="font-family:'Noto Sans JP',sans-serif;">
+          </div>
+          <div class="flex-col gap-2">
+            <div style="height:24px;"></div>
+            <input type="text" class="form-input" placeholder="Nghĩa tiếng Việt *" value="${esc(c.back)}"
+              oninput="updateCard(${c.id},'back',this.value)">
+            <input type="text" class="form-input" placeholder="Romaji" value="${esc(c.romaji)}"
+              oninput="updateCard(${c.id},'romaji',this.value)">
+          </div>
+          <div class="card-row-actions">
+            <button class="btn btn-icon" onclick="speak('${esc(c.front)}')" title="Phát âm">🔊</button>
+            <button class="btn btn-icon" style="color:var(--clr-danger);" onclick="removeCard(${c.id})" title="Xóa thẻ">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateCard(id, field, value) {
+      const c = cardRows.find(c => c.id === id);
+      if (c) c[field] = value;
+    }
+
+    function esc(str) {
+      return (str || '').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    /* ---------- SAVE ---------- */
+    function saveSet() {
+      const name = document.getElementById('set-name').value.trim();
+      if (!name) { showToast('Vui lòng nhập tên bộ thẻ!', 'error'); return; }
+
+      const validCards = cardRows.filter(c => c.front.trim() && c.back.trim());
+      if (!validCards.length) { showToast('Cần ít nhất 1 thẻ có từ và nghĩa!', 'error'); return; }
+
+      const set = {
+        id:          editingSetId || generateId(),
+        name,
+        description: document.getElementById('set-desc').value.trim(),
+        level:       document.getElementById('set-level').value,
+        color:       selectedColor,
+        createdAt:   editingSetId ? (DB.getSet(editingSetId)?.createdAt || Date.now()) : Date.now(),
+        cards:       validCards.map((c, i) => ({ ...c, id: i + 1 })),
+      };
+
+      DB.saveSet(set);
+      showToast(`Đã lưu "${name}" với ${validCards.length} thẻ! 🎉`, 'success');
+      setTimeout(() => window.location.href = `study-set.html?set=${set.id}`, 900);
+    }
+
+    /* ---------- IMPORT CSV ---------- */
+    function importCSV() { document.getElementById('csv-input').click(); }
+
+    function handleCSV(event) {
+      const file   = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const lines = e.target.result.split('\n').filter(l => l.trim());
+        let added = 0;
+        lines.forEach(line => {
+          const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g,''));
+          if (parts.length >= 2 && parts[0] && parts[1]) {
+            cardRows.push({
+              id:            Date.now() + Math.random(),
+              front:         parts[0],
+              back:          parts[1],
+              hiragana:      parts[2] || parts[0],
+              romaji:        parts[3] || '',
+              example:       parts[4] || '',
+              exampleMeaning:parts[5] || '',
+              category:      parts[6] || '',
+            });
+            added++;
+          }
+        });
+        renderCardList();
+        showToast(`Đã import ${added} thẻ từ CSV!`, 'success');
+      };
+      reader.readAsText(file, 'UTF-8');
+      event.target.value = '';
+    }
+  </script>
+</body>
+</html>

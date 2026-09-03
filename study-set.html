@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết bộ thẻ — NihonGo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div class="bg-mesh"><div class="orb3"></div></div>
+  <div id="navbar-placeholder"></div>
+
+  <main class="page">
+    <div class="container-md" style="padding-top:var(--sp-8);">
+
+      <!-- SET HEADER -->
+      <div class="flex items-start justify-between gap-4" style="margin-bottom:var(--sp-6);flex-wrap:wrap;">
+        <div>
+          <div class="flex gap-3 items-center" style="margin-bottom:var(--sp-2);">
+            <span id="set-level" class="badge-n5">N5</span>
+            <span id="set-count" style="font-size:.85rem;color:var(--text-muted);">64 từ</span>
+          </div>
+          <h1 id="set-title">Đang tải...</h1>
+          <p id="set-desc" style="margin-top:var(--sp-2);"></p>
+        </div>
+        <div class="flex gap-3">
+          <button class="btn btn-ghost btn-sm" onclick="editSet()">✏️ Chỉnh sửa</button>
+          <button class="btn btn-ghost btn-sm" id="btn-delete" style="color:var(--clr-danger);" onclick="deleteSet()">🗑️ Xóa</button>
+        </div>
+      </div>
+
+      <!-- PREVIEW CAROUSEL -->
+      <div class="preview-carousel" id="preview-carousel">
+        <div class="preview-word" id="preview-word">
+          <div class="japanese-lg" id="prev-front">わたし</div>
+          <div style="color:var(--clr-primary-light);font-size:1.1rem;margin-top:8px;font-family:'Noto Sans JP',sans-serif;" id="prev-reading"></div>
+          <div style="color:var(--text-secondary);margin-top:6px;" id="prev-back">tôi</div>
+        </div>
+        <button style="position:absolute;left:16px;top:50%;transform:translateY(-50%);" class="btn btn-icon" onclick="prevPreview()">←</button>
+        <button style="position:absolute;right:16px;top:50%;transform:translateY(-50%);" class="btn btn-icon" onclick="nextPreview()">→</button>
+        <button style="position:absolute;top:16px;right:16px;" class="btn btn-icon" onclick="speak(currentPreviewWord())">🔊</button>
+      </div>
+      <div class="preview-dots" id="preview-dots"></div>
+
+      <div class="grid-2" style="margin-top:var(--sp-8);">
+        <!-- MODE BUTTONS -->
+        <div>
+          <h3 style="margin-bottom:var(--sp-4);">Chọn chế độ học</h3>
+          <div class="mode-list" id="mode-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div>
+          <h3 style="margin-bottom:var(--sp-4);">Tiến độ của bạn <span style="font-size:.8rem;font-weight:400;color:var(--text-muted);">ℹ️</span></h3>
+          <div class="card-glass" style="padding:var(--sp-6);">
+            <div class="flex items-center gap-6">
+              <div class="progress-ring-wrap">
+                <svg class="progress-ring" width="100" height="100" viewBox="0 0 100 100">
+                  <defs>
+                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#7C6FFF"/>
+                      <stop offset="100%" stop-color="#A89FFF"/>
+                    </linearGradient>
+                  </defs>
+                  <circle class="progress-ring-track" cx="50" cy="50" r="40"/>
+                  <circle class="progress-ring-fill" cx="50" cy="50" r="40" id="ring-fill"/>
+                </svg>
+                <div class="progress-ring-label">
+                  <div id="ring-pct" style="font-size:1.4rem;font-weight:800;background:var(--grad-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">0%</div>
+                  <div class="progress-ring-sublabel">thuộc</div>
+                </div>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between" style="margin-bottom:var(--sp-2);">
+                  <span style="font-size:.85rem;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--clr-success);display:inline-block;"></span> Đã thuộc</span>
+                  <span id="prog-known" style="font-weight:700;">0</span>
+                </div>
+                <div class="flex items-center justify-between" style="margin-bottom:var(--sp-2);">
+                  <span style="font-size:.85rem;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--clr-warning);display:inline-block;"></span> Đang học</span>
+                  <span id="prog-learning" style="font-weight:700;">0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span style="font-size:.85rem;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--text-muted);display:inline-block;"></span> Chưa học</span>
+                  <span id="prog-unseen" style="font-weight:700;">0</span>
+                </div>
+                <hr class="divider">
+                <div class="flex items-center justify-between">
+                  <span style="font-size:.85rem;">Tổng</span>
+                  <span id="prog-total" style="font-weight:700;">0 từ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:var(--sp-4);">
+            <button class="btn btn-outline" style="width:100%;" onclick="resetProgress()">🔄 Đặt lại tiến độ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORD LIST -->
+      <div style="margin-top:var(--sp-10);">
+        <div class="flex items-center justify-between gap-3 flex-wrap" style="margin-bottom:var(--sp-4);">
+          <h3>Danh sách từ</h3>
+          <div class="search-wrap" style="flex:1;min-width:220px;max-width:320px;">
+            <span class="icon">🔍</span>
+            <input type="text" class="search-input" id="word-search" placeholder="Tìm từ..." oninput="filterWords(this.value)">
+          </div>
+        </div>
+        <div class="word-list" id="word-list"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Confirm delete modal -->
+  <div class="modal-overlay hidden" id="delete-modal">
+    <div class="modal-box">
+      <div class="modal-title">🗑️ Xóa bộ thẻ?</div>
+      <div class="modal-body">Hành động này không thể hoàn tác. Toàn bộ tiến độ cũng sẽ bị xóa.</div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Hủy</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">Xóa</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/sm2.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentSet   = null;
+    let previewIndex = 0;
+
+    const MODES = [
+      { key:'flashcard', icon:'🃏', color:'linear-gradient(135deg,#7C6FFF,#A89FFF)', label:'Thẻ ghi nhớ',  desc:'Lật thẻ, ghi nhớ từ mới. Vuốt để đánh giá.' },
+      { key:'learn',     icon:'🧠', color:'linear-gradient(135deg,#FF6B9D,#FFB347)', label:'Học thông minh', desc:'SM-2: từ khó xuất hiện nhiều hơn.' },
+      { key:'test',      icon:'📝', color:'linear-gradient(135deg,#2ECC9A,#38F9D7)', label:'Kiểm tra',     desc:'Trắc nghiệm, đúng/sai và điền chỗ trống.' },
+      { key:'match',     icon:'🔗', color:'linear-gradient(135deg,#38B2FF,#7C6FFF)', label:'Ghép thẻ',    desc:'Ghép từ với nghĩa đúng, thi đua thời gian.' },
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const setId = getSetIdFromURL();
+      if (!setId) { window.location.href = 'index.html'; return; }
+
+      currentSet = DB.getSet(setId);
+      if (!currentSet) { window.location.href = 'index.html'; return; }
+
+      document.getElementById('navbar-placeholder').innerHTML = renderNavbar('set');
+      renderPage();
+    });
+
+    function renderPage() {
+      const s = currentSet;
+      document.title = `${s.name} — NihonGo`;
+      document.getElementById('set-title').textContent  = s.name;
+      document.getElementById('set-desc').textContent   = s.description || '';
+      document.getElementById('set-count').textContent  = `${s.cards.length} từ`;
+      document.getElementById('set-level').textContent  = s.level;
+      document.getElementById('set-level').className    = `badge-${s.level.toLowerCase()}`;
+
+      renderModes();
+      renderPreview();
+      renderProgress();
+      renderWordList(s.cards);
+    }
+
+    function renderModes() {
+      const sid = currentSet.id;
+      document.getElementById('mode-list').innerHTML = MODES.map(m => `
+        <a href="${m.key}.html?set=${sid}" class="mode-btn">
+          <div class="mode-btn-icon" style="background:${m.color};">${m.icon}</div>
+          <div>
+            <div class="mode-btn-label">${m.label}</div>
+            <div class="mode-btn-desc">${m.desc}</div>
+          </div>
+          <span class="mode-btn-arrow">›</span>
+        </a>
+      `).join('');
+    }
+
+    function renderPreview() {
+      const cards = currentSet.cards;
+      renderPreviewCard(0);
+
+      // Dots
+      const dotsEl = document.getElementById('preview-dots');
+      const maxDots = Math.min(cards.length, 9);
+      dotsEl.innerHTML = Array.from({length: maxDots}, (_, i) =>
+        `<div class="preview-dot ${i===0?'active':''}" onclick="goPreview(${i})"></div>`
+      ).join('');
+    }
+
+    function renderPreviewCard(i) {
+      const card = currentSet.cards[i];
+      if (!card) return;
+      document.getElementById('prev-front').textContent   = card.front;
+      document.getElementById('prev-reading').textContent = card.hiragana !== card.front ? card.hiragana : '';
+      document.getElementById('prev-back').textContent    = card.back;
+
+      document.querySelectorAll('.preview-dot').forEach((d, di) => {
+        d.classList.toggle('active', di === i);
+      });
+
+      // Animate
+      const pw = document.getElementById('preview-word');
+      pw.style.animation = 'none'; pw.offsetHeight;
+      pw.style.animation = 'fadeIn .35s ease both';
+    }
+
+    function currentPreviewWord() { return currentSet.cards[previewIndex]?.front || ''; }
+    function prevPreview() { previewIndex = (previewIndex - 1 + currentSet.cards.length) % currentSet.cards.length; renderPreviewCard(previewIndex); }
+    function nextPreview() { previewIndex = (previewIndex + 1) % currentSet.cards.length; renderPreviewCard(previewIndex); }
+    function goPreview(i) { previewIndex = i; renderPreviewCard(i); }
+
+    // Auto-advance preview
+    setInterval(() => { if (document.visibilityState === 'visible') nextPreview(); }, 4000);
+
+    function renderProgress() {
+      const prog = DB.getSetProgress(currentSet.id);
+      document.getElementById('prog-known').textContent    = prog.known;
+      document.getElementById('prog-learning').textContent = prog.learning;
+      document.getElementById('prog-unseen').textContent   = prog.unseen;
+      document.getElementById('prog-total').textContent    = `${prog.total} từ`;
+      document.getElementById('ring-pct').textContent      = `${prog.pct}%`;
+
+      const fill = document.getElementById('ring-fill');
+      const circ = 2 * Math.PI * 40;
+      fill.style.strokeDasharray  = circ;
+      fill.style.strokeDashoffset = circ * (1 - prog.pct / 100);
+    }
+
+    let allCards = [];
+    function renderWordList(cards) {
+      allCards = cards;
+      const list = document.getElementById('word-list');
+      list.innerHTML = cards.map((c, i) => {
+        const p  = DB.getProgress(currentSet.id, c.id);
+        const nextStr = p.lastSeen ? SM2.formatNextReview(p.nextReview) : 'Chưa học';
+        return `
+          <div class="word-item anim-fadeInUp" style="animation-delay:${Math.min(i, 20) * 0.02}s;">
+            <div>
+              <div class="word-item-jp">${c.front}</div>
+              <div style="font-size:.78rem;color:var(--clr-primary-light);font-family:'Noto Sans JP',sans-serif;">${c.hiragana !== c.front ? c.hiragana : c.romaji}</div>
+            </div>
+            <div>
+              <div class="word-item-vn">${c.back}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);">Ôn: ${nextStr}</div>
+            </div>
+            <div class="word-item-acts">
+              <button class="btn btn-icon" onclick="speak('${c.front.replace(/'/g,"\\'")}')" title="Phát âm">🔊</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterWords(q) {
+      const filtered = allCards.filter(c =>
+        c.front.includes(q) || c.back.includes(q) || c.romaji?.includes(q.toLowerCase()) || c.hiragana?.includes(q)
+      );
+      renderWordList(filtered);
+    }
+
+    function editSet() { window.location.href = `create.html?set=${currentSet.id}`; }
+    function deleteSet() { document.getElementById('delete-modal').classList.remove('hidden'); }
+    function closeModal()  { document.getElementById('delete-modal').classList.add('hidden'); }
+    function confirmDelete() {
+      DB.deleteSet(currentSet.id);
+      showToast('Đã xóa bộ thẻ', 'info');
+      setTimeout(() => window.location.href = 'index.html', 800);
+    }
+    function resetProgress() {
+      if (!confirm('Đặt lại toàn bộ tiến độ của bộ thẻ này?')) return;
+      const all = DB.getAllProgress();
+      Object.keys(all).filter(k => k.startsWith(currentSet.id + '_')).forEach(k => delete all[k]);
+      localStorage.setItem('jlearn_progress', JSON.stringify(all));
+      renderProgress();
+      showToast('Đã đặt lại tiến độ', 'info');
+    }
+  </script>
+</body>
+</html>
