@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Học Ngữ pháp tiếng Nhật thông minh — Thêm ngữ pháp học hôm nay và tự động sinh bài tập luyện tập ngay.">
+  <title>Ngữ pháp tiếng Nhật — NihonGo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div class="bg-mesh"><div class="orb3"></div></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">
+        <div class="brand-logo">🌸</div>
+        <span class="brand-name">NihonGo</span>
+      </a>
+      <ul class="navbar-nav hide-mobile">
+        <li><a href="index.html">🏠 Từ vựng & Kanji</a></li>
+        <li><a href="grammar.html" class="active">📖 Ngữ pháp</a></li>
+        <li><a href="create.html">➕ Tạo bộ thẻ</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('add-grammar-section').scrollIntoView({behavior:'smooth'})">
+          + Thêm ngữ pháp mới
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="container" style="padding-top:var(--sp-6);padding-bottom:var(--sp-16);">
+
+      <!-- HEADER BANNER -->
+      <div class="flex items-center justify-between gap-4 flex-wrap" style="margin-bottom:var(--sp-6);">
+        <div>
+          <div class="flex items-center gap-2" style="margin-bottom:6px;">
+            <span class="hero-badge" style="margin:0;">🇯🇵 文法 (Bunpou)</span>
+            <span class="tag tag-success" id="today-count-badge">0 mẫu</span>
+          </div>
+          <h1 style="font-size:clamp(1.6rem, 3.5vw, 2.4rem);">Sổ Tay & Luyện Tập Ngữ Pháp</h1>
+          <p style="margin-top:4px;">Ghi chú ngữ pháp bạn vừa học hôm nay, hệ thống sẽ <strong>tự động tạo bài tập điền từ & ghép câu</strong> để bạn nhớ lâu.</p>
+        </div>
+
+        <!-- QUICK PRACTICE BUTTONS -->
+        <div class="flex gap-3 flex-wrap">
+          <button class="btn btn-success btn-lg" onclick="startPracticeForToday()">
+            ⚡ Luyện tập ngữ pháp HÔM NAY
+          </button>
+          <button class="btn btn-secondary btn-lg" onclick="startPracticeAll()">
+            🎯 Luyện tập TẤT CẢ (<span id="grammar-total-badge">0</span>)
+          </button>
+        </div>
+      </div>
+
+      <!-- ADD GRAMMAR CARD (SECTION) -->
+      <section class="card-glass" id="add-grammar-section" style="padding:var(--sp-6);margin-bottom:var(--sp-10);border-color:var(--glass-border-hi);">
+        <div class="flex items-center justify-between gap-3 flex-wrap" style="margin-bottom:var(--sp-4);">
+          <div class="flex items-center gap-3">
+            <span style="font-size:1.6rem;">✍️</span>
+            <div>
+              <h2 style="font-size:1.3rem;">Ghi chép ngữ pháp học hôm nay</h2>
+              <div style="font-size:.85rem;color:var(--text-secondary);">Nhập cấu trúc & 1-2 câu ví dụ, bài tập sẽ được tự động tạo ngay lập tức!</div>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-ai-generate" onclick="requestAIAssist()" title="Nhập tên mẫu rồi bấm nút này để AI tự điền ví dụ">
+            ✨ Nhờ AI tự động điền ví dụ
+          </button>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:var(--sp-5);">
+          <div class="flex-col gap-4">
+            <div class="form-group">
+              <label class="form-label">Tên mẫu ngữ pháp * (Kanji/Hiragana)</label>
+              <input type="text" id="input-pattern" class="form-input japanese" placeholder="Ví dụ: ～てください hoặc ～てもいいです">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ý nghĩa tiếng Việt *</label>
+              <input type="text" id="input-meaning" class="form-input" placeholder="Ví dụ: Xin hãy... / Hãy làm gì đó một cách lịch sự">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Công thức kết nối (tùy chọn)</label>
+              <input type="text" id="input-connection" class="form-input" placeholder="Ví dụ: V-て + ください / N + は">
+            </div>
+          </div>
+
+          <div class="flex-col gap-4">
+            <div class="flex gap-3">
+              <div class="form-group flex-1">
+                <label class="form-label">Cấp độ</label>
+                <select id="input-level" class="form-select">
+                  <option value="N5" selected>N5</option>
+                  <option value="N4">N4</option>
+                  <option value="N3">N3</option>
+                  <option value="N2">N2</option>
+                </select>
+              </div>
+              <div class="form-group flex-1">
+                <label class="form-label">Ngày học</label>
+                <input type="date" id="input-date" class="form-input">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ghi chú / Lưu ý khi dùng (tùy chọn)</label>
+              <textarea id="input-note" class="form-textarea" style="min-height:92px;" placeholder="Ví dụ: Dùng khi nhờ vả người khác một cách lịch sự..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXAMPLES SECTION -->
+        <div style="background:rgba(0,0,0,.2);padding:var(--sp-4);border-radius:var(--r-md);margin-bottom:var(--sp-5);">
+          <div class="flex items-center justify-between" style="margin-bottom:var(--sp-3);">
+            <div>
+              <span class="form-label" style="color:var(--clr-primary-light);">Các câu ví dụ (Hệ thống sẽ dùng câu này để tạo bài tập cho bạn):</span>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-add-example-row">+ Thêm câu ví dụ</button>
+          </div>
+
+          <div id="example-rows-container">
+            <!-- Default 1 empty row -->
+            <div class="flex gap-2 items-center ex-row" style="margin-bottom:8px;">
+              <input type="text" class="form-input ex-jp japanese" style="flex:1;" placeholder="Câu tiếng Nhật (Ví dụ: ちょっと待ってください。)">
+              <input type="text" class="form-input ex-vn" style="flex:1;" placeholder="Nghĩa tiếng Việt (Xin hãy đợi một chút)">
+              <button type="button" class="btn btn-icon btn-sm" style="color:var(--clr-danger);" onclick="this.parentElement.remove()" title="Xóa dòng">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="flex gap-3 justify-end flex-wrap">
+          <button class="btn btn-secondary btn-lg" onclick="saveGrammar(false)">
+            💾 Lưu vào sổ tay
+          </button>
+          <button class="btn btn-primary btn-lg" onclick="saveGrammar(true)">
+            🚀 Lưu & Luyện tập ngay
+          </button>
+        </div>
+
+        <!-- GEMINI KEY SETTING (COLLAPSIBLE / OPTIONAL) -->
+        <div style="margin-top:var(--sp-4);padding-top:var(--sp-3);border-top:1px dashed var(--glass-border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:.8rem;color:var(--text-muted);">
+          <span>🔑 Google Gemini API Key (Tùy chọn nếu muốn AI sinh câu hỏi tự động):</span>
+          <input type="password" id="input-gemini-key" class="form-input" style="max-width:240px;padding:4px 8px;font-size:.8rem;" placeholder="Dán Gemini API Key ở đây">
+          <button class="btn btn-outline btn-sm" onclick="saveApiKeyFromUI()">Lưu Key</button>
+          <span style="font-size:.75rem;">(Chỉ lưu trên trình duyệt của bạn, miễn phí và an toàn)</span>
+        </div>
+      </section>
+
+      <!-- LIST & FILTER SECTION -->
+      <section>
+        <div class="flex items-center justify-between gap-3 flex-wrap" style="margin-bottom:var(--sp-5);">
+          <h2>📚 Danh sách mẫu ngữ pháp đã học</h2>
+          <div class="flex gap-2 items-center flex-wrap">
+            <div class="search-wrap" style="max-width:260px;">
+              <span class="icon">🔍</span>
+              <input type="text" id="search-grammar" class="search-input" placeholder="Tìm cấu trúc, ý nghĩa..." oninput="filterGrammar()">
+            </div>
+            <select id="filter-grammar-date" class="form-select" style="width:auto;font-size:.85rem;" onchange="filterGrammar()">
+              <option value="">Tất cả thời gian</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- GRID CARDS -->
+        <div class="grid-3" id="grammar-grid">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-overlay hidden" id="grammar-detail-modal" onclick="if(event.target===this) closeDetailModal()">
+    <div class="modal-box" style="max-width:620px;" id="grammar-detail-body">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- PRACTICE MODAL (INTERACTIVE QUIZ & REORDER) -->
+  <div class="modal-overlay hidden" id="grammar-practice-modal">
+    <div class="modal-box" style="max-width:680px;padding:var(--sp-6);">
+      <!-- PRACTICE HEADER -->
+      <div class="flex items-center justify-between gap-3" style="margin-bottom:var(--sp-4);">
+        <div>
+          <h3 id="practice-session-title" style="font-size:1.2rem;color:var(--clr-primary-light);">Luyện tập Ngữ pháp</h3>
+          <span id="practice-progress-text" style="font-size:.8rem;color:var(--text-muted);">Câu 1 / 10</span>
+        </div>
+        <button class="btn btn-icon btn-sm" onclick="closePracticeModal()" title="Đóng">✕</button>
+      </div>
+
+      <!-- PROGRESS BAR -->
+      <div class="progress-wrap" style="height:6px;margin-bottom:var(--sp-5);">
+        <div class="progress-bar" id="practice-progress-bar" style="width:0%;"></div>
+      </div>
+
+      <!-- QUESTION CONTAINER -->
+      <div id="practice-question-container">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/data.js"></script>
+  <script src="js/sm2.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/grammar-data.js"></script>
+  <script src="js/grammar.js"></script>
+  <script>
+    // Set today date as default
+    document.addEventListener('DOMContentLoaded', () => {
+      const dInput = document.getElementById('input-date');
+      if (dInput) dInput.value = new Date().toISOString().split('T')[0];
+    });
+  </script>
+</body>
+</html>

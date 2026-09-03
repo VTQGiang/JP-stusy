@@ -52,6 +52,8 @@ function renderCard() {
 
   // Back
   document.getElementById('fc-back-meaning').textContent  = card.back;
+  const backRomajiEl = document.getElementById('fc-back-romaji');
+  if (backRomajiEl) backRomajiEl.textContent = card.romaji ? `[ ${card.romaji} ]` : '';
   document.getElementById('fc-back-example').textContent  = card.example || '';
   document.getElementById('fc-back-example-vn').textContent = card.exampleMeaning || '';
   document.getElementById('fc-back-reading').textContent  = card.hiragana || '';

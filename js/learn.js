@@ -95,8 +95,9 @@ function buildQuestionHTML(card, mode) {
       <div class="learn-question anim-fadeIn">
         <div class="learn-qtype">Chọn nghĩa đúng 🎯</div>
         <div class="learn-qtext">
+          ${card.romaji ? `<div style="font-size:1.15rem;font-weight:600;color:var(--clr-primary-light);letter-spacing:.08em;margin-bottom:2px;">[ ${card.romaji} ]</div>` : ''}
+          ${card.hiragana && card.hiragana !== card.front ? `<div style="color:var(--text-secondary);font-family:'Noto Sans JP',sans-serif;font-size:1.1rem;margin-bottom:6px;">${card.hiragana}</div>` : ''}
           <div class="japanese-lg">${card.front}</div>
-          ${card.hiragana !== card.front ? `<div style="color:var(--clr-primary-light);font-family:'Noto Sans JP',sans-serif;font-size:1.1rem;margin-top:8px;">${card.hiragana}</div>` : ''}
         </div>
         <button class="btn btn-icon" style="position:absolute;top:16px;right:16px;" onclick="speak('${card.front.replace(/'/g,"\\'")}')">🔊</button>
       </div>

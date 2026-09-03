@@ -34,9 +34,10 @@
       <!-- PREVIEW CAROUSEL -->
       <div class="preview-carousel" id="preview-carousel">
         <div class="preview-word" id="preview-word">
+          <div style="font-size:1.1rem;font-weight:600;color:var(--clr-primary-light);letter-spacing:.08em;margin-bottom:2px;" id="prev-romaji"></div>
+          <div style="color:var(--text-secondary);font-size:1.05rem;margin-bottom:4px;font-family:'Noto Sans JP',sans-serif;" id="prev-reading"></div>
           <div class="japanese-lg" id="prev-front">わたし</div>
-          <div style="color:var(--clr-primary-light);font-size:1.1rem;margin-top:8px;font-family:'Noto Sans JP',sans-serif;" id="prev-reading"></div>
-          <div style="color:var(--text-secondary);margin-top:6px;" id="prev-back">tôi</div>
+          <div style="color:var(--text-primary);font-weight:600;font-size:1.15rem;margin-top:8px;" id="prev-back">tôi</div>
         </div>
         <button style="position:absolute;left:16px;top:50%;transform:translateY(-50%);" class="btn btn-icon" onclick="prevPreview()">←</button>
         <button style="position:absolute;right:16px;top:50%;transform:translateY(-50%);" class="btn btn-icon" onclick="nextPreview()">→</button>
@@ -199,6 +200,8 @@
       const card = currentSet.cards[i];
       if (!card) return;
       document.getElementById('prev-front').textContent   = card.front;
+      const romajiEl = document.getElementById('prev-romaji');
+      if (romajiEl) romajiEl.textContent = card.romaji ? `[ ${card.romaji} ]` : '';
       document.getElementById('prev-reading').textContent = card.hiragana !== card.front ? card.hiragana : '';
       document.getElementById('prev-back').textContent    = card.back;
 
@@ -244,12 +247,13 @@
         return `
           <div class="word-item anim-fadeInUp" style="animation-delay:${Math.min(i, 20) * 0.02}s;">
             <div>
-              <div class="word-item-jp">${c.front}</div>
-              <div style="font-size:.78rem;color:var(--clr-primary-light);font-family:'Noto Sans JP',sans-serif;">${c.hiragana !== c.front ? c.hiragana : c.romaji}</div>
+              ${c.romaji ? `<div style="font-size:.8rem;font-weight:600;color:var(--clr-primary-light);letter-spacing:.05em;">[ ${c.romaji} ]</div>` : ''}
+              ${c.hiragana && c.hiragana !== c.front ? `<div style="font-size:.85rem;color:var(--text-secondary);font-family:'Noto Sans JP',sans-serif;">${c.hiragana}</div>` : ''}
+              <div class="word-item-jp" style="font-size:1.2rem;font-weight:700;">${c.front}</div>
             </div>
             <div>
-              <div class="word-item-vn">${c.back}</div>
-              <div style="font-size:.75rem;color:var(--text-muted);">Ôn: ${nextStr}</div>
+              <div class="word-item-vn" style="font-weight:600;">${c.back}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">Ôn: ${nextStr}</div>
             </div>
             <div class="word-item-acts">
               <button class="btn btn-icon" onclick="speak('${c.front.replace(/'/g,"\\'")}')" title="Phát âm">🔊</button>

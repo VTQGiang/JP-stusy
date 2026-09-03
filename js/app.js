@@ -158,6 +158,7 @@ function renderNavbar(activePage) {
       </a>
       <ul class="navbar-nav hide-mobile">
         <li><a href="index.html" ${activePage==='home'?'class="active"':''}>🏠 Trang chủ</a></li>
+        <li><a href="grammar.html" ${activePage==='grammar'?'class="active"':''}>📖 Ngữ pháp</a></li>
         <li><a href="create.html" ${activePage==='create'?'class="active"':''}>➕ Tạo bộ thẻ</a></li>
       </ul>
       <div class="navbar-actions">

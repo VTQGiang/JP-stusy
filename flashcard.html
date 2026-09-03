@@ -39,9 +39,10 @@
               <div class="fc-category-tag" id="fc-front-cat"></div>
               <button class="fc-speaker" onclick="event.stopPropagation();speak(document.getElementById('fc-front-word').textContent)">🔊</button>
 
+              <!-- Romaji & Furigana above Kanji -->
+              <div class="fc-romaji" id="fc-front-romaji" style="font-size:1.1rem;font-weight:600;color:var(--clr-primary-light);letter-spacing:.08em;margin-bottom:2px;text-transform:lowercase;"></div>
+              <div class="fc-reading japanese" id="fc-front-reading" style="font-size:1.15rem;color:var(--text-secondary);margin-bottom:6px;"></div>
               <div class="fc-japanese japanese-xl" id="fc-front-word"></div>
-              <div class="fc-reading japanese" id="fc-front-reading"></div>
-              <div class="fc-romaji" id="fc-front-romaji"></div>
 
               <div class="swipe-indicator left">✗</div>
               <div class="swipe-indicator right">✓</div>
@@ -55,9 +56,10 @@
             <div class="fc-face fc-back">
               <button class="fc-speaker" onclick="event.stopPropagation();speak(document.getElementById('fc-front-word').textContent)">🔊</button>
 
-              <div style="font-size:.8rem;color:var(--clr-primary-light);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:var(--sp-3);">Nghĩa</div>
+              <div style="font-size:.8rem;color:var(--clr-primary-light);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:var(--sp-2);">Phiên âm & Nghĩa</div>
+              <div class="fc-romaji" id="fc-back-romaji" style="font-size:1.1rem;font-weight:600;color:var(--clr-primary-light);margin-bottom:2px;"></div>
+              <div class="fc-reading japanese" id="fc-back-reading" style="font-size:1.15rem;color:var(--text-secondary);margin-bottom:8px;"></div>
               <div class="fc-meaning" id="fc-back-meaning"></div>
-              <div class="fc-reading japanese" id="fc-back-reading" style="margin-top:4px;font-size:1rem;color:var(--clr-primary-light);"></div>
 
               <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);width:80%;margin:var(--sp-4) auto;">
 

@@ -46,8 +46,24 @@ function startRound(count = 6) {
   MATCH.total = pool.length;
 
   // Build tiles: JP side + VN side
-  const jpTiles = pool.map(c => ({ id: `jp_${c.id}`, pairId: c.id, text: c.front, isJP: true, matched: false }));
-  const vnTiles = pool.map(c => ({ id: `vn_${c.id}`, pairId: c.id, text: c.back,  isJP: false, matched: false }));
+  const jpTiles = pool.map(c => ({ 
+    id: `jp_${c.id}`, 
+    pairId: c.id, 
+    text: c.front, 
+    romaji: c.romaji || '',
+    hiragana: c.hiragana && c.hiragana !== c.front ? c.hiragana : '',
+    isJP: true, 
+    matched: false 
+  }));
+  const vnTiles = pool.map(c => ({ 
+    id: `vn_${c.id}`, 
+    pairId: c.id, 
+    text: c.back, 
+    romaji: '',
+    hiragana: '',
+    isJP: false, 
+    matched: false 
+  }));
 
   MATCH.tiles = shuffle([...jpTiles, ...vnTiles]);
 
@@ -69,7 +85,13 @@ function renderBoard() {
          data-id="${tile.id}"
          data-pair="${tile.pairId}"
          onclick="selectTile(this)">
-      ${tile.text}
+      ${tile.isJP ? `
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          ${tile.romaji ? `<span style="font-size:.72rem;font-weight:600;color:var(--clr-primary-light);letter-spacing:.04em;line-height:1;">[ ${tile.romaji} ]</span>` : ''}
+          ${tile.hiragana ? `<span style="font-size:.78rem;color:var(--text-secondary);line-height:1.2;">${tile.hiragana}</span>` : ''}
+          <span style="font-size:1.15rem;font-weight:700;line-height:1.2;">${tile.text}</span>
+        </div>
+      ` : `<span>${tile.text}</span>`}
     </div>
   `).join('');
 }

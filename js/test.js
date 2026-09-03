@@ -147,8 +147,11 @@ function renderTestQuestion() {
       <div class="test-qnum">Câu ${TEST.qIndex + 1} / ${TEST.questions.length}</div>
       <div class="test-qtext">
         ${isJP
-          ? `<div class="japanese-lg">${q.prompt}</div>
-             ${q.reading ? `<div style="color:var(--clr-primary-light);font-family:'Noto Sans JP',sans-serif;font-size:1rem;margin-top:6px;">${q.reading}</div>` : ''}`
+          ? `<div>
+               ${q.card && q.card.romaji ? `<div style="font-size:1.15rem;font-weight:600;color:var(--clr-primary-light);letter-spacing:.08em;margin-bottom:2px;">[ ${q.card.romaji} ]</div>` : ''}
+               ${q.reading ? `<div style="color:var(--text-secondary);font-family:'Noto Sans JP',sans-serif;font-size:1.05rem;margin-bottom:6px;">${q.reading}</div>` : ''}
+               <div class="japanese-lg">${q.prompt}</div>
+             </div>`
           : `<div style="font-size:1.5rem;font-weight:700;">${q.prompt}</div>`
         }
       </div>
