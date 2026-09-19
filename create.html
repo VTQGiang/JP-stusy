@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -228,30 +228,47 @@
     function importCSV() { document.getElementById('csv-input').click(); }
 
     function handleCSV(event) {
-      const file   = event.target.files[0];
+      const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = e => {
         const lines = e.target.result.split('\n').filter(l => l.trim());
         let added = 0;
         lines.forEach(line => {
-          const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g,''));
-          if (parts.length >= 2 && parts[0] && parts[1]) {
+          // Support comma, tab, or pipe as delimiter
+          const delim = line.includes('\t') ? '\t' : line.includes('|') ? '|' : ',';
+          const parts = line.split(delim).map(p => p.trim().replace(/^"|"$/g, ''));
+
+          // Auto-detect: if parts[0] is a pure number (sequence number), skip it
+          let offset = 0;
+          if (parts.length >= 2 && /^\d+$/.test(parts[0])) {
+            offset = 1;
+          }
+
+          const front    = parts[offset]     || '';
+          const hiragana = parts[offset + 1] || '';
+          const back     = parts[offset + 2] || '';
+          const romaji   = parts[offset + 3] || '';
+          const example  = parts[offset + 4] || '';
+          const exMeaning= parts[offset + 5] || '';
+          const category = parts[offset + 6] || '';
+
+          if (front && back) {
             cardRows.push({
               id:            Date.now() + Math.random(),
-              front:         parts[0],
-              back:          parts[1],
-              hiragana:      parts[2] || parts[0],
-              romaji:        parts[3] || '',
-              example:       parts[4] || '',
-              exampleMeaning:parts[5] || '',
-              category:      parts[6] || '',
+              front,
+              back,
+              hiragana:      hiragana || front,
+              romaji,
+              example,
+              exampleMeaning: exMeaning,
+              category,
             });
             added++;
           }
         });
         renderCardList();
-        showToast(`Đã import ${added} thẻ từ CSV!`, 'success');
+        showToast(`Đã import ${added} thẻ!`, 'success');
       };
       reader.readAsText(file, 'UTF-8');
       event.target.value = '';
