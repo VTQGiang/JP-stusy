@@ -236,8 +236,12 @@ function encodeSyncCode(obj) {
 
 function decodeSyncCode(code) {
   code = (code || '').trim();
+  if (code.startsWith('```')) {
+    code = code.replace(/^```[a-z]*\s*/i, '').replace(/\s*```$/, '').trim();
+  }
   if (code.startsWith('NIHONGO_')) {
-    const bin = atob(code.replace(/^NIHONGO_/, ''));
+    const cleanB64 = code.replace(/^NIHONGO_/, '').replace(/\s+/g, '');
+    const bin = atob(cleanB64);
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
     const json = new TextDecoder().decode(bytes);
@@ -278,54 +282,42 @@ function ensureSyncModal() {
 
       <!-- TAB EXPORT -->
       <div id="sync-panel-export" class="sync-panel">
-        <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:var(--sp-4);">
-          Lấy dữ liệu từ máy tính để chuyển sang điện thoại hoặc lưu trữ dự phòng an toàn.
-        </p>
+        <div style="margin-bottom:var(--sp-3);padding:var(--sp-3);background:rgba(46,204,154,0.08);border:1px solid rgba(46,204,154,0.25);border-radius:var(--r-md);font-size:.82rem;color:var(--text-secondary);line-height:1.5;">
+          💡 <b>Cách gửi qua Zalo không bao giờ bị lỗi:</b><br>
+          Bấm <b>"💾 Tải file JSON"</b> ➔ Gửi file qua Zalo (Cloud của tôi). Trên điện thoại chỉ cần bấm <b>"📂 Chọn file JSON"</b> là xong ngay!
+        </div>
 
-        <div id="sync-target-set-box" class="sync-card-option" style="display:none;background:rgba(124,111,255,0.08);border-color:var(--clr-primary);">
-          <div style="font-weight:700;font-size:.95rem;color:var(--clr-primary-light);" id="sync-target-set-name">Bộ thẻ</div>
-          <p style="font-size:.8rem;color:var(--text-muted);margin:0;">Chỉ xuất riêng bộ thẻ này sang điện thoại.</p>
-          <div class="flex gap-2 flex-wrap" style="margin-top:var(--sp-2);">
-            <button class="btn btn-primary btn-sm" onclick="downloadCurrentSetJSON()">💾 Tải file JSON bộ này</button>
-            <button class="btn btn-outline btn-sm" onclick="copyCurrentSetSyncCode()">📋 Sao chép mã bộ này</button>
-          </div>
+        <div id="sync-custom-sets-list" style="margin-bottom:var(--sp-4);">
+          <!-- Rendered dynamically -->
         </div>
 
         <div class="sync-card-option">
-          <div style="font-weight:700;font-size:.95rem;">📦 Tất cả bộ thẻ & Tiến độ học</div>
-          <p style="font-size:.8rem;color:var(--text-muted);margin:0;">Xuất toàn bộ các bộ thẻ bạn đã tạo và lịch sử ôn tập.</p>
+          <div style="font-weight:700;font-size:.9rem;">📦 Toàn bộ dữ liệu & Tiến độ học</div>
+          <p style="font-size:.78rem;color:var(--text-muted);margin:0;">Bao gồm tất cả các bộ thẻ và lịch sử ôn tập.</p>
           <div class="flex gap-2 flex-wrap" style="margin-top:var(--sp-2);">
-            <button class="btn btn-primary btn-sm" onclick="downloadAllJSON()">💾 Tải file (.json)</button>
-            <button class="btn btn-outline btn-sm" onclick="copyAllSyncCode()">📋 Sao chép mã đồng bộ</button>
+            <button class="btn btn-secondary btn-sm" onclick="downloadAllJSON()">💾 Tải file backup (.json)</button>
+            <button class="btn btn-ghost btn-sm" onclick="copyAllSyncCode()">📋 Sao chép mã (Tất cả)</button>
           </div>
-        </div>
-
-        <div style="margin-top:var(--sp-3);padding:var(--sp-3);background:rgba(255,255,255,0.03);border-radius:var(--r-md);font-size:.8rem;color:var(--text-muted);line-height:1.5;">
-          💡 <b>Mẹo gửi sang điện thoại nhanh nhất:</b><br>
-          Bấm <b>"Sao chép mã"</b> ➔ Gửi qua tin nhắn (Zalo, Messenger, Telegram...) cho chính bạn ➔ Mở web trên điện thoại, bấm <b>"Đồng bộ"</b> ➔ chọn tab <b>"Nhập dữ liệu"</b> và dán vào!
         </div>
       </div>
 
       <!-- TAB IMPORT -->
       <div id="sync-panel-import" class="sync-panel" style="display:none;">
-        <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:var(--sp-4);">
-          Nhập bộ thẻ hoặc tiến độ học tập vào trình duyệt của thiết bị này.
-        </p>
-
-        <div class="sync-card-option">
-          <div style="font-weight:700;font-size:.95rem;">📁 Cách 1: Tải lên file .json</div>
-          <p style="font-size:.8rem;color:var(--text-muted);margin:0;">Chọn file sao lưu .json bạn đã tải về từ máy tính.</p>
-          <div style="margin-top:var(--sp-2);">
+        <div class="sync-card-option" style="background:rgba(124,111,255,0.08);border-color:rgba(124,111,255,0.3);">
+          <div style="font-weight:700;font-size:.95rem;color:var(--clr-primary-light);">⭐ Cách 1 (Khuyên dùng): Chọn file .json</div>
+          <p style="font-size:.8rem;color:var(--text-secondary);margin:0;">Nếu bạn gửi file qua Zalo, hãy tải file về điện thoại rồi bấm chọn file bên dưới:</p>
+          <div style="margin-top:var(--sp-3);">
             <input type="file" id="sync-file-input" accept=".json" style="display:none;" onchange="handleSyncFileUpload(event)">
-            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('sync-file-input').click()">📂 Chọn file JSON...</button>
+            <button class="btn btn-primary" onclick="document.getElementById('sync-file-input').click()">📂 Chọn file JSON đã tải...</button>
           </div>
         </div>
 
         <div class="sync-card-option">
           <div style="font-weight:700;font-size:.95rem;">📝 Cách 2: Dán mã đồng bộ</div>
-          <p style="font-size:.8rem;color:var(--text-muted);margin:0;">Dán mã đồng bộ (bắt đầu bằng NIHONGO_ hoặc JSON) bạn đã sao chép:</p>
+          <p style="font-size:.8rem;color:var(--text-muted);margin:0;">Dán mã đồng bộ bạn đã sao chép:</p>
           <textarea id="sync-paste-input" class="sync-code-area" placeholder="Dán mã đồng bộ vào đây..."></textarea>
-          <div class="flex justify-end" style="margin-top:var(--sp-2);">
+          <div class="flex justify-end gap-2" style="margin-top:var(--sp-2);">
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('sync-paste-input').value=''">Xóa</button>
             <button class="btn btn-primary btn-sm" onclick="handleSyncTextImport()">⚡ Nhập dữ liệu ngay</button>
           </div>
         </div>
@@ -334,27 +326,27 @@ function ensureSyncModal() {
       <!-- TAB PERMANENT (GITHUB) -->
       <div id="sync-panel-perm" class="sync-panel" style="display:none;">
         <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:var(--sp-4);">
-          Đưa bộ thẻ vào mã nguồn trang web. Khi đó <b>mọi thiết bị (kể cả điện thoại của bạn lẫn người khác)</b> mở link GitHub Pages đều tự động có sẵn bộ thẻ mà không cần đồng bộ thủ công!
+          Lưu bộ thẻ vào mã nguồn trang web. Khi đó <b>mọi thiết bị mở link web</b> đều có sẵn bộ thẻ mà không cần gửi file hay nhập mã nữa!
         </p>
 
         <div class="form-group" style="margin-bottom:var(--sp-3);">
-          <label class="form-label">Chọn bộ thẻ muốn đưa vào mã nguồn:</label>
+          <label class="form-label">Chọn bộ thẻ muốn lưu lên GitHub:</label>
           <select id="sync-perm-select" class="form-select" onchange="renderPermSnippet()"></select>
         </div>
 
         <div style="margin-bottom:var(--sp-3);">
           <div class="flex items-center justify-between" style="margin-bottom:4px;">
             <span style="font-size:.8rem;color:var(--text-muted);">Mã JavaScript của bộ thẻ:</span>
-            <button class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:2px 8px;" onclick="copyPermSnippet()">📋 Sao chép mã này</button>
+            <button class="btn btn-primary btn-sm" style="font-size:.75rem;padding:3px 10px;" onclick="copyPermSnippet()">📋 Sao chép mã này</button>
           </div>
           <textarea id="sync-perm-code" class="sync-code-area" readonly></textarea>
         </div>
 
         <div style="padding:var(--sp-4);background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:var(--r-md);font-size:.8rem;line-height:1.6;color:var(--text-secondary);">
-          <div style="font-weight:700;color:var(--text-primary);margin-bottom:var(--sp-2);">Các bước thực hiện trên máy tính:</div>
-          <div><span class="sync-step-badge">1</span> Bấm nút <b>"Sao chép mã này"</b> ở trên.</div>
-          <div style="margin-top:4px;"><span class="sync-step-badge">2</span> Mở file <code>js/data.js</code>, tìm mảng <code>const DEFAULT_SETS = [ ... ]</code> và dán đoạn mã vào cuối mảng (nhớ thêm dấu phẩy ngăn cách).</div>
-          <div style="margin-top:4px;"><span class="sync-step-badge">3</span> Mở terminal gõ: <code>git commit -am "Them bo the"</code> và <code>git push</code>.</div>
+          <div style="font-weight:700;color:var(--text-primary);margin-bottom:var(--sp-2);">Các bước hoàn thành:</div>
+          <div><span class="sync-step-badge">1</span> Bấm nút <b>"Sao chép mã này"</b> ở trên (hoặc gửi mã đó vào khung chat cho AI làm giúp).</div>
+          <div style="margin-top:4px;"><span class="sync-step-badge">2</span> Dán vào mảng <code>DEFAULT_SETS</code> trong file <code>js/data.js</code>.</div>
+          <div style="margin-top:4px;"><span class="sync-step-badge">3</span> Chạy <code>git commit -am "Them bo the"</code> và <code>git push</code>.</div>
         </div>
       </div>
 
@@ -371,24 +363,45 @@ function openSyncModal(initialTab = 'export', targetSetId = null) {
   ensureSyncModal();
   currentSyncTargetSetId = targetSetId || (typeof getSetIdFromURL === 'function' ? getSetIdFromURL() : null);
 
-  const targetBox = document.getElementById('sync-target-set-box');
-  if (currentSyncTargetSetId) {
-    const s = DB.getSet(currentSyncTargetSetId);
-    if (s && targetBox) {
-      targetBox.style.display = 'block';
-      document.getElementById('sync-target-set-name').textContent = `🎯 Bộ thẻ: "${s.name}" (${s.cards.length} từ)`;
-    } else if (targetBox) {
-      targetBox.style.display = 'none';
+  // Render custom sets list in Export tab
+  const customListEl = document.getElementById('sync-custom-sets-list');
+  if (customListEl) {
+    const customSets = DB.getCustomSets();
+    if (customSets.length) {
+      customListEl.innerHTML = `
+        <div style="font-weight:700;font-size:.85rem;color:var(--clr-primary-light);margin-bottom:var(--sp-2);">
+          ✨ Bộ thẻ bạn đã tạo (${customSets.length} bộ):
+        </div>
+        ` + customSets.map(s => `
+          <div class="sync-card-option" style="background:rgba(124,111,255,0.06);border-color:rgba(124,111,255,0.25);">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <span style="font-weight:700;font-size:.9rem;">${s.name}</span>
+                <span style="font-size:.75rem;color:var(--text-muted);margin-left:6px;">(${s.cards.length} thẻ · ${s.level})</span>
+              </div>
+              <div class="flex gap-2 flex-wrap">
+                <button class="btn btn-primary btn-sm" onclick="downloadSetById('${s.id}')">💾 Tải file JSON</button>
+                <button class="btn btn-outline btn-sm" onclick="copySetById('${s.id}')">📋 Sao chép mã</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+    } else {
+      customListEl.innerHTML = `
+        <div style="padding:var(--sp-3);background:rgba(255,255,255,0.02);border:1px dashed var(--glass-border);border-radius:var(--r-md);font-size:.82rem;color:var(--text-muted);text-align:center;">
+          Bạn chưa tạo bộ thẻ tùy chỉnh nào trên trình duyệt này.
+        </div>
+      `;
     }
-  } else if (targetBox) {
-    targetBox.style.display = 'none';
   }
 
   // Populate sets dropdown in permanent tab
   const permSelect = document.getElementById('sync-perm-select');
   if (permSelect) {
-    const sets = DB.getSets();
-    permSelect.innerHTML = sets.map(s => `<option value="${s.id}" ${s.id === currentSyncTargetSetId ? 'selected' : ''}>${s.name} (${s.level} · ${s.cards.length} từ)</option>`).join('');
+    const allSets = DB.getSets();
+    const customSets = DB.getCustomSets();
+    const targetId = currentSyncTargetSetId || (customSets[0]?.id) || allSets[0]?.id;
+    permSelect.innerHTML = allSets.map(s => `<option value="${s.id}" ${s.id === targetId ? 'selected' : ''}>${s.name} (${s.level} · ${s.cards.length} từ)</option>`).join('');
     renderPermSnippet();
   }
 
@@ -414,20 +427,18 @@ function renderPermSnippet() {
   const codeBox = document.getElementById('sync-perm-code');
   if (!permSelect || !codeBox) return;
   const setId = permSelect.value;
-  const s = DB.getSet(setId);
-  if (!s) { codeBox.value = ''; return; }
-  codeBox.value = JSON.stringify(s, null, 2) + ',';
+  const code = DB.generateSetJsCode(setId);
+  codeBox.value = code ? code + ',' : '';
 }
 
 function copyPermSnippet() {
   const codeBox = document.getElementById('sync-perm-code');
   if (!codeBox || !codeBox.value) return;
-  copyToClipboard(codeBox.value, 'Đã sao chép mã! Hãy dán vào DEFAULT_SETS trong file js/data.js.');
+  copyToClipboard(codeBox.value, 'Đã sao chép mã JavaScript của bộ thẻ!');
 }
 
-function downloadCurrentSetJSON() {
-  if (!currentSyncTargetSetId) return;
-  const setExport = DB.exportSet(currentSyncTargetSetId);
+function downloadSetById(setId) {
+  const setExport = DB.exportSet(setId);
   if (!setExport) { showToast('Không tìm thấy bộ thẻ!', 'error'); return; }
   const s = setExport.set;
   const filename = `nihongo-${(s.name || 'set').replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
@@ -435,9 +446,8 @@ function downloadCurrentSetJSON() {
   showToast(`Đã tải file "${filename}"!`, 'success');
 }
 
-function copyCurrentSetSyncCode() {
-  if (!currentSyncTargetSetId) return;
-  const setExport = DB.exportSet(currentSyncTargetSetId);
+function copySetById(setId) {
+  const setExport = DB.exportSet(setId);
   if (!setExport) { showToast('Không tìm thấy bộ thẻ!', 'error'); return; }
   const code = encodeSyncCode(setExport);
   copyToClipboard(code, `Đã sao chép mã bộ thẻ "${setExport.set.name}"!`);
@@ -452,9 +462,10 @@ function downloadAllJSON() {
 }
 
 function copyAllSyncCode() {
-  const data = DB.exportAll();
+  const custom = DB.getCustomSets();
+  const data = custom.length ? DB.exportCustomSets() : DB.exportAll();
   const code = encodeSyncCode(data);
-  copyToClipboard(code, 'Đã sao chép mã đồng bộ toàn bộ dữ liệu!');
+  copyToClipboard(code, 'Đã sao chép mã đồng bộ!');
 }
 
 function handleSyncFileUpload(event) {
@@ -469,7 +480,7 @@ function handleSyncFileUpload(event) {
       showToast(`Đã nhập thành công ${res.importedSets || 1} bộ thẻ! 🎉`, 'success');
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
-      showToast('File không đúng định dạng: ' + err.message, 'error');
+      showToast('File không đúng định dạng: ' + err.message, 'error', 5000);
     }
   };
   reader.readAsText(file, 'UTF-8');
@@ -478,7 +489,7 @@ function handleSyncFileUpload(event) {
 
 function handleSyncTextImport() {
   const input = document.getElementById('sync-paste-input');
-  const text = (input?.value || '').trim();
+  let text = (input?.value || '').trim();
   if (!text) {
     showToast('Vui lòng dán mã đồng bộ hoặc dữ liệu JSON!', 'warning');
     return;
@@ -491,7 +502,11 @@ function handleSyncTextImport() {
     input.value = '';
     setTimeout(() => window.location.reload(), 1000);
   } catch (err) {
-    showToast('Mã đồng bộ không hợp lệ: ' + err.message, 'error');
+    if (text.startsWith('NIHONGO_') && text.length < 120) {
+      showToast('Mã bị thiếu ký tự (do Zalo chia nhỏ tin nhắn). Hãy dùng nút "Tải file JSON" gửi qua Zalo để không bị lỗi nhé!', 'error', 6000);
+    } else {
+      showToast('Mã đồng bộ không hợp lệ: ' + err.message, 'error', 5000);
+    }
   }
 }
 

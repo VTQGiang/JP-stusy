@@ -319,15 +319,61 @@ class DB {
     localStorage.setItem(LS_STATS, JSON.stringify(s));
   }
 
+  /* Custom Sets (User-created) */
+  static getCustomSets() {
+    const defaultIds = new Set(DEFAULT_SETS.map(s => s.id));
+    return this.getSets().filter(s => !defaultIds.has(s.id));
+  }
+
+  static compactSet(set) {
+    if (!set) return null;
+    return {
+      id: set.id,
+      name: set.name,
+      description: set.description || '',
+      level: set.level || 'N5',
+      color: set.color || '#7C6FFF',
+      createdAt: set.createdAt || Date.now(),
+      cards: (set.cards || []).map((c, idx) => {
+        const card = { id: c.id || (idx + 1), front: c.front, back: c.back };
+        if (c.hiragana && c.hiragana !== c.front) card.hiragana = c.hiragana;
+        if (c.romaji) card.romaji = c.romaji;
+        if (c.example) card.example = c.example;
+        if (c.exampleMeaning) card.exampleMeaning = c.exampleMeaning;
+        if (c.category) card.category = c.category;
+        return card;
+      })
+    };
+  }
+
   /* Export & Import / Sync */
   static exportAll() {
     return {
       type: 'nihongo_backup',
       version: 1,
       exportedAt: new Date().toISOString(),
-      sets: this.getSets(),
+      sets: this.getSets().map(s => this.compactSet(s)),
       progress: this.getAllProgress(),
       stats: this.getStats()
+    };
+  }
+
+  static exportCustomSets() {
+    const custom = this.getCustomSets();
+    const allProg = this.getAllProgress();
+    const customProg = {};
+    custom.forEach(s => {
+      (s.cards || []).forEach(c => {
+        const key = `${s.id}_${c.id}`;
+        if (allProg[key]) customProg[key] = allProg[key];
+      });
+    });
+    return {
+      type: 'nihongo_custom_sets',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      sets: custom.map(s => this.compactSet(s)),
+      progress: customProg
     };
   }
 
@@ -341,12 +387,14 @@ class DB {
       }
     }
 
-    if (data.type === 'nihongo_single_set' || (data.cards && data.name)) {
+    // Direct single set
+    if (data.type === 'nihongo_single_set' || (data.cards && data.name && !Array.isArray(data.sets))) {
       const set = this.importSet(data);
       return { importedSets: 1, totalSets: this.getSets().length, single: set.name };
     }
 
-    if (!Array.isArray(data.sets)) {
+    const setsList = Array.isArray(data) ? data : (data.sets || []);
+    if (!Array.isArray(setsList) || setsList.length === 0) {
       throw new Error('Dữ liệu không chứa danh sách bộ thẻ hợp lệ!');
     }
 
@@ -354,7 +402,7 @@ class DB {
     const map = new Map(currentSets.map(s => [s.id, s]));
     let addedCount = 0;
 
-    data.sets.forEach(newSet => {
+    setsList.forEach(newSet => {
       if (newSet && newSet.name && Array.isArray(newSet.cards)) {
         if (!map.has(newSet.id)) addedCount++;
         map.set(newSet.id, newSet);
@@ -379,7 +427,7 @@ class DB {
       }));
     }
 
-    return { importedSets: data.sets.length, addedCount, totalSets: map.size };
+    return { importedSets: setsList.length, addedCount, totalSets: map.size };
   }
 
   static exportSet(setId) {
@@ -395,7 +443,7 @@ class DB {
       type: 'nihongo_single_set',
       version: 1,
       exportedAt: new Date().toISOString(),
-      set,
+      set: this.compactSet(set),
       progress: setProg
     };
   }
@@ -431,7 +479,7 @@ class DB {
   static generateSetJsCode(setId) {
     const set = this.getSet(setId);
     if (!set) return '';
-    return JSON.stringify(set, null, 2);
+    return JSON.stringify(this.compactSet(set), null, 2);
   }
 }
 
