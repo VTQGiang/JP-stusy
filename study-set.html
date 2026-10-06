@@ -281,9 +281,7 @@
     }
     function resetProgress() {
       if (!confirm('Đặt lại toàn bộ tiến độ của bộ thẻ này?')) return;
-      const all = DB.getAllProgress();
-      Object.keys(all).filter(k => k.startsWith(currentSet.id + '_')).forEach(k => delete all[k]);
-      localStorage.setItem('jlearn_progress', JSON.stringify(all));
+      DB.resetSetProgress(currentSet.id);
       renderProgress();
       showToast('Đã đặt lại tiến độ', 'info');
     }

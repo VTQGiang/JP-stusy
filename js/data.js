@@ -299,6 +299,12 @@ class DB {
     return { total, known, learning, unseen, pct: Math.round((known / total) * 100) };
   }
 
+  static resetSetProgress(setId) {
+    const all = this.getAllProgress();
+    Object.keys(all).filter(k => k.startsWith(setId + '_')).forEach(k => delete all[k]);
+    localStorage.setItem(LS_PROGRESS, JSON.stringify(all));
+  }
+
   /* Stats */
   static getStats() {
     const raw = localStorage.getItem(LS_STATS);

@@ -123,26 +123,6 @@ function launchConfetti(duration = 3000) {
 }
 
 /* -------------------------------------------------------
-   PROGRESS BAR helper
-   ------------------------------------------------------- */
-function setProgressBar(el, pct) {
-  const bar = el.querySelector ? el.querySelector('.progress-bar') : el;
-  if (bar) bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
-}
-
-/* -------------------------------------------------------
-   PROGRESS RING helper
-   ------------------------------------------------------- */
-function setProgressRing(svgEl, pct) {
-  const fill = svgEl.querySelector('.progress-ring-fill');
-  if (!fill) return;
-  const r    = fill.getAttribute('r');
-  const circ = 2 * Math.PI * r;
-  fill.style.strokeDasharray  = circ;
-  fill.style.strokeDashoffset = circ * (1 - pct / 100);
-}
-
-/* -------------------------------------------------------
    COMMON NAVBAR HTML  (injected by each page)
    ------------------------------------------------------- */
 function renderNavbar(activePage) {
@@ -186,10 +166,6 @@ function onKey(key, callback) {
    Format number helpers
    ------------------------------------------------------- */
 function pct(n, d) { return d ? Math.round((n / d) * 100) : 0; }
-
-function levelBadge(level) {
-  return `<span class="badge-${level.toLowerCase()}">${level}</span>`;
-}
 
 /* ============================================================
    CLIPBOARD & SYNC HELPERS
