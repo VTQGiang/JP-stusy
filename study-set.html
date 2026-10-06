@@ -25,7 +25,8 @@
           <h1 id="set-title">Đang tải...</h1>
           <p id="set-desc" style="margin-top:var(--sp-2);"></p>
         </div>
-        <div class="flex gap-3">
+        <div class="flex gap-2 flex-wrap">
+          <button class="btn btn-outline btn-sm" onclick="openSyncModal('export', getSetIdFromURL())" title="Đồng bộ bộ thẻ này sang điện thoại">📤 Đồng bộ / Xuất thẻ</button>
           <button class="btn btn-ghost btn-sm" onclick="editSet()">✏️ Chỉnh sửa</button>
           <button class="btn btn-ghost btn-sm" id="btn-delete" style="color:var(--clr-danger);" onclick="deleteSet()">🗑️ Xóa</button>
         </div>

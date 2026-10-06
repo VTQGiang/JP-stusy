@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -24,6 +24,7 @@
         <li><a href="create.html" class="active">➕ Tạo bộ thẻ</a></li>
       </ul>
       <div class="navbar-actions">
+        <button class="btn btn-outline btn-sm" onclick="openSyncModal()" title="Đồng bộ giữa máy tính và điện thoại">🔄 Đồng bộ</button>
         <button class="btn btn-secondary btn-sm" onclick="window.history.back()">← Hủy</button>
         <button class="btn btn-primary btn-sm" onclick="saveSet()">💾 Lưu</button>
       </div>
@@ -35,7 +36,10 @@
 
       <div class="flex items-center justify-between gap-3 flex-wrap" style="margin-bottom:var(--sp-6);">
         <h1 id="page-title" style="font-size:clamp(1.5rem, 3.5vw, 2.5rem);">➕ Tạo bộ thẻ mới</h1>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
+          <button class="btn btn-outline btn-sm" onclick="importJSON()" title="Nhập từ file JSON">📥 Import JSON</button>
+          <input type="file" id="json-input" accept=".json" style="display:none;" onchange="handleJSONImport(event)">
+          <button class="btn btn-outline btn-sm" onclick="exportCurrentEditingJSON()" title="Xuất ra file JSON">📤 Xuất JSON</button>
           <button class="btn btn-outline btn-sm" onclick="importCSV()" title="Nhập từ CSV">📥 Import CSV</button>
           <input type="file" id="csv-input" accept=".csv,.txt" style="display:none;" onchange="handleCSV(event)">
         </div>
@@ -100,7 +104,8 @@
 
       <hr class="divider" style="margin:var(--sp-10) 0;">
 
-      <div class="flex gap-4 justify-end">
+      <div class="flex gap-3 justify-end flex-wrap items-center">
+        <button class="btn btn-outline" onclick="exportCurrentEditingJSON()">📤 Xuất file JSON</button>
         <button class="btn btn-ghost" onclick="window.history.back()">Hủy</button>
         <button class="btn btn-primary btn-lg" onclick="saveSet()">💾 Lưu bộ thẻ</button>
       </div>
@@ -272,6 +277,64 @@
       };
       reader.readAsText(file, 'UTF-8');
       event.target.value = '';
+    }
+
+    /* ---------- IMPORT / EXPORT JSON ---------- */
+    function importJSON() { document.getElementById('json-input').click(); }
+
+    function handleJSONImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = JSON.parse(e.target.result);
+          const set = data.set || data;
+          if (set.name) document.getElementById('set-name').value = set.name;
+          if (set.description) document.getElementById('set-desc').value = set.description;
+          if (set.level) document.getElementById('set-level').value = set.level;
+          if (set.color) selectColorByValue(set.color);
+          if (Array.isArray(set.cards) && set.cards.length) {
+            cardRows = set.cards.map(c => ({
+              id:            Date.now() + Math.random(),
+              front:         c.front || '',
+              back:          c.back || '',
+              hiragana:      c.hiragana || c.front || '',
+              romaji:        c.romaji || '',
+              example:       c.example || '',
+              exampleMeaning:c.exampleMeaning || '',
+              category:      c.category || ''
+            }));
+            renderCardList();
+            showToast(`Đã import thành công ${set.cards.length} thẻ từ JSON! 🎉`, 'success');
+          }
+        } catch (err) {
+          showToast('File JSON không hợp lệ: ' + err.message, 'error');
+        }
+      };
+      reader.readAsText(file, 'UTF-8');
+      event.target.value = '';
+    }
+
+    function exportCurrentEditingJSON() {
+      const name = document.getElementById('set-name').value.trim() || 'bo_the_moi';
+      const validCards = cardRows.filter(c => c.front.trim() && c.back.trim());
+      if (!validCards.length) {
+        showToast('Cần ít nhất 1 thẻ có từ và nghĩa để xuất!', 'warning');
+        return;
+      }
+      const set = {
+        id:          editingSetId || generateId(),
+        name,
+        description: document.getElementById('set-desc').value.trim(),
+        level:       document.getElementById('set-level').value,
+        color:       selectedColor,
+        createdAt:   Date.now(),
+        cards:       validCards.map((c, i) => ({ ...c, id: i + 1 })),
+      };
+      const filename = `nihongo-${name.replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
+      DB.downloadJSON(filename, { type: 'nihongo_single_set', version: 1, set });
+      showToast(`Đã tải file "${filename}"!`, 'success');
     }
   </script>
 </body>

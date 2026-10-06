@@ -29,6 +29,7 @@
           <span class="icon">🔍</span>
           <input type="text" class="search-input" id="global-search" placeholder="Tìm bộ thẻ..." oninput="filterSets(this.value)">
         </div>
+        <button class="btn btn-outline btn-sm" onclick="openSyncModal()" title="Đồng bộ giữa máy tính và điện thoại">🔄 Đồng bộ</button>
         <a href="create.html" class="btn btn-primary btn-sm">+ Tạo mới</a>
       </div>
     </div>
@@ -48,9 +49,7 @@
         </p>
         <div class="hero-actions">
           <a href="create.html" class="btn btn-primary btn-lg">🚀 Tạo bộ thẻ đầu tiên</a>
-          <button class="btn btn-secondary btn-lg" onclick="document.getElementById('sets-section').scrollIntoView({behavior:'smooth'})">
-            📚 Xem bộ thẻ
-          </button>
+          <button class="btn btn-secondary btn-lg" onclick="openSyncModal()">🔄 Đồng bộ / Sao lưu</button>
         </div>
         <div class="hero-stats" id="hero-stats">
           <div class="hero-stat"><div class="hero-stat-value" id="stat-sets">0</div><div class="hero-stat-label">Bộ thẻ</div></div>
@@ -75,6 +74,7 @@
               <option value="N2">N2</option>
               <option value="N1">N1</option>
             </select>
+            <button class="btn btn-outline btn-sm" onclick="openSyncModal()">🔄 Đồng bộ</button>
             <a href="create.html" class="btn btn-outline btn-sm">+ Thêm bộ thẻ</a>
           </div>
         </div>

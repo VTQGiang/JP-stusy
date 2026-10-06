@@ -318,6 +318,121 @@ class DB {
     }
     localStorage.setItem(LS_STATS, JSON.stringify(s));
   }
+
+  /* Export & Import / Sync */
+  static exportAll() {
+    return {
+      type: 'nihongo_backup',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      sets: this.getSets(),
+      progress: this.getAllProgress(),
+      stats: this.getStats()
+    };
+  }
+
+  static importAll(data) {
+    if (!data) throw new Error('Dữ liệu trống!');
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (e) {
+        throw new Error('Định dạng JSON không hợp lệ!');
+      }
+    }
+
+    if (data.type === 'nihongo_single_set' || (data.cards && data.name)) {
+      const set = this.importSet(data);
+      return { importedSets: 1, totalSets: this.getSets().length, single: set.name };
+    }
+
+    if (!Array.isArray(data.sets)) {
+      throw new Error('Dữ liệu không chứa danh sách bộ thẻ hợp lệ!');
+    }
+
+    const currentSets = this.getSets();
+    const map = new Map(currentSets.map(s => [s.id, s]));
+    let addedCount = 0;
+
+    data.sets.forEach(newSet => {
+      if (newSet && newSet.name && Array.isArray(newSet.cards)) {
+        if (!map.has(newSet.id)) addedCount++;
+        map.set(newSet.id, newSet);
+      }
+    });
+
+    localStorage.setItem(LS_SETS, JSON.stringify(Array.from(map.values())));
+
+    if (data.progress && typeof data.progress === 'object') {
+      const currentProg = this.getAllProgress();
+      localStorage.setItem(LS_PROGRESS, JSON.stringify({ ...currentProg, ...data.progress }));
+    }
+
+    if (data.stats && typeof data.stats === 'object') {
+      const curStats = this.getStats();
+      localStorage.setItem(LS_STATS, JSON.stringify({
+        totalStudied: Math.max(curStats.totalStudied || 0, data.stats.totalStudied || 0),
+        totalCorrect: Math.max(curStats.totalCorrect || 0, data.stats.totalCorrect || 0),
+        totalWrong:   Math.max(curStats.totalWrong || 0, data.stats.totalWrong || 0),
+        streak:       Math.max(curStats.streak || 0, data.stats.streak || 0),
+        lastDate:     curStats.lastDate || data.stats.lastDate || ''
+      }));
+    }
+
+    return { importedSets: data.sets.length, addedCount, totalSets: map.size };
+  }
+
+  static exportSet(setId) {
+    const set = this.getSet(setId);
+    if (!set) return null;
+    const allProg = this.getAllProgress();
+    const setProg = {};
+    (set.cards || []).forEach(c => {
+      const key = `${setId}_${c.id}`;
+      if (allProg[key]) setProg[key] = allProg[key];
+    });
+    return {
+      type: 'nihongo_single_set',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      set,
+      progress: setProg
+    };
+  }
+
+  static importSet(data) {
+    if (typeof data === 'string') data = JSON.parse(data);
+    const set = data.set || data;
+    if (!set || !set.name || !Array.isArray(set.cards)) {
+      throw new Error('Dữ liệu bộ thẻ không hợp lệ!');
+    }
+    if (!set.id) set.id = generateId();
+    this.saveSet(set);
+    if (data.progress && typeof data.progress === 'object') {
+      const allProg = this.getAllProgress();
+      localStorage.setItem(LS_PROGRESS, JSON.stringify({ ...allProg, ...data.progress }));
+    }
+    return set;
+  }
+
+  static downloadJSON(filename, dataObj) {
+    const str = JSON.stringify(dataObj, null, 2);
+    const blob = new Blob([str], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  static generateSetJsCode(setId) {
+    const set = this.getSet(setId);
+    if (!set) return '';
+    return JSON.stringify(set, null, 2);
+  }
 }
 
 /* -------------------------------------------------------
